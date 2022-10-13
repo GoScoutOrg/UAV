@@ -1,0 +1,3 @@
+[submodule "legacy_code/common"]
+	path = legacy_code/common
+	url = https://github.com/DaedalusRTF/common.git

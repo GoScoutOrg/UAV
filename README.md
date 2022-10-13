@@ -1,7 +1,4 @@
-# goscout
-A repo for CPE350 Fall 2022 multiple autonmous robot project
-
-## UAV SITL Setup
+### UAV SITL Setup
 
 Thankfully there is a lot of documentation on how to perform this setup. I'll do my best to consolidate it here. This will only urn on Ubuntu.
 I'm using 20.04, Gazebo will not run on anything newer so I would stick to that version.

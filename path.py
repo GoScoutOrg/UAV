@@ -41,16 +41,18 @@ def main():
         0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
         0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
-    for i in range(10):
-        offset = i*4
+    for i in range(3):
+        offset = i*3
         print(f"offset={offset}")
-        send_ned_velocity(0, 1, 0, 4+offset, vehicle)
+        if send_ned_velocity(0, 1, 0, 3+offset, vehicle) == True:
+            return
         vehicle.send_mavlink(msg_blank)
         time.sleep(2) 
         condition_yaw(90, vehicle)
         time.sleep(2) 
 
-        send_ned_velocity(0, 1, 0, 4+offset, vehicle)
+        if send_ned_velocity(0, 1, 0, 3+offset, vehicle) == True:
+            return
         vehicle.send_mavlink(msg_blank)
         time.sleep(2) 
         condition_yaw(90, vehicle)

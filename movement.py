@@ -2,6 +2,8 @@ import time
 import math
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil, Command
 import argparse
+# from vision.webcam import check_cam
+from vision.targetCap import check_cam
 
 #from QRCode import findQR, CameraData
 
@@ -147,11 +149,26 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration, vehicle):
       0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
 
+   msg_blank = vehicle.message_factory.set_position_target_local_ned_encode(
+      0,       # time_boot_ms (not used)
+      0, 0,    # target system, target component
+      mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
+      0b0000111111000111, # type_mask (only speeds enabled)
+      0, 0, 0, # x, y, z positions (not used)
+      0, 0, 0, # x, y, z velocity in m/s
+      0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+      0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
+
    # send command to vehicle on 1 Hz cycle
    for x in range(round(duration)):
       vehicle.send_mavlink(msg)
       print("Altitude (NED frame): %s" % vehicle.location.local_frame.down)
-      time.sleep(1) 
+      for y in range(10):
+         if check_cam() == True:
+            vehicle.send_mavlink(msg_blank)
+            return True
+         time.sleep(0.1) 
+   return False
 
 
 def condition_yaw(heading, vehicle):

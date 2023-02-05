@@ -202,8 +202,8 @@ def startup():
    # Connect to the Vehicle
    if not connection_string:
       print('auto connect')
-      vehicle = connect('127.0.0.1:14550', wait_ready=True)
-      # vehicle = connect('/dev/serial0', baud=57600, heartbeat_timeout=15)
+      # vehicle = connect('127.0.0.1:14550', wait_ready=True)
+      vehicle = connect('/dev/serial0', baud=57600, heartbeat_timeout=15)
    else:
       print('Connecting to vehicle on: %s' % connection_string)
       vehicle = connect(connection_string, wait_ready=True)

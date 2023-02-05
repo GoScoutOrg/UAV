@@ -3,7 +3,7 @@ import math
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil, Command
 import argparse
 # from vision.webcam import check_cam
-from vision.webcam import check_cam
+from vision.targetCap import check_cam
 
 #from QRCode import findQR, CameraData
 

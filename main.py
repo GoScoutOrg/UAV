@@ -13,7 +13,7 @@ def wait_for_rover(args):
 
 function_set = {
     #"EXECUTION": wait_for_rover,
-    "EX_ACK": comms.send("PICKLE")
+    "EX_DONE": comms.send("PICKLE")
 }
 
 def main():

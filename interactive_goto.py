@@ -83,7 +83,7 @@ def main():
             0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
             0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
-         for i in range(10):
+         for i in range(3):
             offset = i*3
             print(f"offset={offset}")
             send_ned_velocity(0, 0.5, 0, 3+offset, vehicle)

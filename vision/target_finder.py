@@ -38,9 +38,10 @@ class TargetFinder():
     # Takes in target coordinates given current coordinates
     # Returns the distance for direct travel (the hypotenuse)
     def coords_to_target_distance(self, target_long, target_lat, curr_long, curr_lat):
+        METER_TO_COORD_DEG_RATIO = 111139
         delta_x = target_long - curr_long
         delta_y = target_lat - curr_lat
-        return math.sqrt((delta_x**2)+(delta_y**2))
+        return math.sqrt((delta_x**2)+(delta_y**2)) * METER_TO_COORD_DEG_RATIO
 
     # This converts relative image positioning into a physical offset (in meters) from the center of the image.
     # The offset uses a coordinate transformation to translate relative offsets into a global x and y scale (like a compass coordinate plane)
@@ -79,7 +80,7 @@ class TargetFinder():
 
     # This function simply returns the physical distance between two physical offsets (Think simple pythagorian theorem)
     def offset_to_distance(self, offset_x, offset_y):
-        return math.sqrt(offset_x, offset_y)
+        return math.sqrt((offset_x * offset_x) + (offset_y * offset_y))
 
     # This function is essentially a wrapper that calls both image_to_offset() and offset_to_target_coords(). If this function is called, neither 
     # image_to_offset() nor offset_to_target() need to be called individually.

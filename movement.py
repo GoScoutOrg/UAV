@@ -2,6 +2,8 @@ import time
 import math
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil, Command
 import argparse
+# from vision.webcam import check_cam
+# from vision.camera import Webcam
 
 #from QRCode import findQR, CameraData
 
@@ -51,46 +53,6 @@ def get_location_metres(original_location, dNorth, dEast):
    return targetlocation
 
 
-# Navigate using North/East distance vectors using the specified ground speed.
-def goto(dNorth, dEast, speed, vehicle, camData = None):
-   currentLocation=vehicle.location.global_relative_frame
-   targetLocation=get_location_metres(currentLocation, dNorth, dEast)
-   targetDistance=get_distance_metres(currentLocation, targetLocation)
-   vehicle.groundspeed = speed;
-   vehicle.simple_goto(targetLocation)
-   stuck_counter = 0
-
-   while vehicle.mode.name=="GUIDED": #Stop action if we are no longer in guided mode.
-      #if camData != None:
-       #  qr = findQR(camData.cam, camData.imgStream, "Daedalus")
-        # if qr != None:
-         #   return qr
-      remainingDistance=get_distance_metres(vehicle.location.global_frame, targetLocation)
-      print("Distance to target: ", remainingDistance)
-      # Old code:
-      '''
-      if remainingDistance<=targetDistance*0.01: #Just below target, in case of undershoot.
-         print("Reached target")
-         break;
-      '''
-      # New version:
-      if remainingDistance < 0.3:
-         print("Reached target")
-         break;
-
-      # Attempt to address getting stuck.
-      if remainingDistance < 1.0:
-         stuck_counter += 1
-      if stuck_counter > 5:
-         print("Attempting to get un-stuck.")
-         vehicle.simple_goto(targetLocation, groundspeed=speed)
-      if stuck_counter > 7:
-         print("Force un-stuck")
-         break;
-
-      time.sleep(2)
-
-
 # Set vehicle mode to GUIDED, arm, and takeoff to the specified altitude.
 def arm_and_takeoff(aTargetAltitude, vehicle):
    print("Basic pre-arm checks")
@@ -132,7 +94,7 @@ def arm_and_takeoff(aTargetAltitude, vehicle):
 
 # Navigate using North/East/Down velocity vectors.
 # TODO: this appears not to work reliably. Needs more standalone testing.
-def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration, vehicle):
+def send_vel_poll_target(velocity_x, velocity_y, duration, vehicle, tf):
    """
    Move vehicle in direction based on specified velocity vectors.
    """
@@ -142,16 +104,31 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration, vehicle):
       mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
       0b0000111111000111, # type_mask (only speeds enabled)
       0, 0, 0, # x, y, z positions (not used)
-      velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
+      velocity_x, velocity_y, 0, # x, y, z velocity in m/s
       0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
       0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
+
+   msg_blank = vehicle.message_factory.set_position_target_local_ned_encode(
+      0,       # time_boot_ms (not used)
+      0, 0,    # target system, target component
+      mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED, # frame
+      0b0000111111000111, # type_mask (only speeds enabled)
+      0, 0, 0, # x, y, z positions (not used)
+      0, 0, 0, # x, y, z velocity in m/s
+      0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+      0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
    # send command to vehicle on 1 Hz cycle
    for x in range(round(duration)):
       vehicle.send_mavlink(msg)
       print("Altitude (NED frame): %s" % vehicle.location.local_frame.down)
-      time.sleep(1) 
+      for y in range(10):
+         if tf.check_for_target() == True:
+            vehicle.send_mavlink(msg_blank)
+            return True
+         time.sleep(0.1) 
+   return False
 
 
 def condition_yaw(heading, vehicle):

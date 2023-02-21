@@ -17,7 +17,7 @@ class TargetFinder():
             self.x = x
             self.y = y
     
-    def __init__(self, camera) -> None:
+    def __init__(self, camera=None) -> None:
         self.src = camera
         self.frame_coord = self.FrameCoord()
         
@@ -38,10 +38,23 @@ class TargetFinder():
     # Takes in target coordinates given current coordinates
     # Returns the distance for direct travel (the hypotenuse)
     def coords_to_target_distance(self, target_long, target_lat, curr_long, curr_lat):
-        METER_TO_COORD_DEG_RATIO = 111139
-        delta_x = target_long - curr_long
-        delta_y = target_lat - curr_lat
-        return math.sqrt((delta_x**2)+(delta_y**2)) * METER_TO_COORD_DEG_RATIO
+        # Approximate radius of earth in km
+        R = 6373.0
+
+        curr_lat = math.radians(curr_lat)
+        curr_long = math.radians(curr_long)
+        target_lat = math.radians(target_lat)
+        target_long = math.radians(target_long)
+
+        dlon = target_long - curr_long
+        dlat = target_lat - curr_lat
+
+        a = math.sin(dlat / 2)**2 + math.cos(curr_lat) * math.cos(target_lat) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        distance = R * c
+
+        return distance / 1000
 
     # This converts relative image positioning into a physical offset (in meters) from the center of the image.
     # The offset uses a coordinate transformation to translate relative offsets into a global x and y scale (like a compass coordinate plane)
@@ -144,3 +157,9 @@ class TargetFinder():
                 cv2.imwrite("test.png", imageFrame)
                 return True
         return False
+    
+def main():
+    tf = TargetFinder()
+    
+if __name__ == "__main__":
+    main()

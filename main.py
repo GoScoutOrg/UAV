@@ -74,7 +74,8 @@ def main():
     vehicle = startup()
 
     function_set = {
-        }
+        "TEST": print("Hello")
+    }
     communications = Process(target=c.parent_proc, args=("192.168.12.103", 7777, "192.168.4.1", 7676, function_set))
     communications.start()
 

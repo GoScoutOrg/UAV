@@ -37,4 +37,6 @@ To connect to the drone:
 on Linux run the following:
   - sudo create_ap --freq-band 2.4 [interface] CLAUSWORKS-PC clausworks
   - sudo firwall-cmd --zone=nm-shared --add-interface=ap0
-  - sudo arp-scan #To check
+  - sudo arp-scan #To check for the ip address
+  - ssh pi@192.168.12.103
+  - password = icarus

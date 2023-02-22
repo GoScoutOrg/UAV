@@ -1,58 +1,11 @@
-#from imaplib import _CommandResults
-#import multiprocessing
-#from multiprocessing.dummy import Process
-#from multiprocessing import Pipe
-#from xml.etree.ElementTree import tostring
 from vision.target_finder import TargetFinder
 from vision.camera import Arducam
-#import gps_file as gps
 from movement import *
 
-#from Communications.communications.parent import parent_proc
+import sys
+from multiprocessing import Process, Pipe
+sys.path.append("../Communications")
 import math
-
-#UAV, comms = Pipe()
-
-def wait_for_rover(args):
-    #wait for a recv from the rover suggesting its done
-    UAV.recv()
-
-def send_location(gps_coor):
-    comms.send(gps_coor)
-
-def calibrate_coordinates(gps_coor):
-    #do some math!!!
-    latitude = gps_coor[0]
-    longitude = gps_coor[1]
-    gps_string = tostring(latitude) + " " + tostring(longitude)
-    send_location(gps_string)
-    
-    
-#function_set = {
-#    "EX_DONE": comms.send("PICKLE")
-#}
-
-# START TARGET COORDINATE CODE
-
-# Takes in target coordinates given current coordinates and current orientation (compass direction in degrees)
-# Returns the turn angle required in degrees
-def coords_to_delta_theta(target_long, target_lat, curr_long, curr_lat, curr_theta_deg):
-    delta_x = target_long - curr_long
-    delta_y = target_lat - curr_lat
-    delta_theta_deg = 0
-    if(delta_y < 0):
-        delta_theta_deg = 180 + math.degrees(math.atan(float(delta_x) / float(delta_y))) - curr_theta_deg
-    else:
-        delta_theta_deg = math.degrees(math.atan(float(delta_x) / float(delta_y))) - curr_theta_deg
-    return delta_theta_deg
-
-# Takes in target coordinates given current coordinates
-# Returns the distance for direct travel (the hypotenuse)
-def coords_to_target_distance(target_long, target_lat, curr_long, curr_lat):
-    METER_TO_COORD_DEG_RATIO = 111139
-    delta_x = target_long - curr_long
-    delta_y = target_lat - curr_lat
-    return math.sqrt((delta_x**2)+(delta_y**2)) * METER_TO_COORD_DEG_RATIO
 
 # This converts relative image positioning into a physical offset (in meters) from the center of the image.
 # The offset uses a coordinate transformation to translate relative offsets into a global x and y scale (like a compass coordinate plane)
@@ -89,10 +42,6 @@ def offset_to_target_coords(offset_y, offset_x, curr_lat, curr_lon):
 
     return [latO, lonO]
 
-# This function simply returns the physical distance between two physical offsets (Think simple pythagorian theorem)
-def offset_to_distance(offset_x, offset_y):
-    return math.sqrt((offset_x * offset_x) + (offset_y * offset_y))
-
 # This function is essentially a wrapper that calls both image_to_offset() and offset_to_target_coords(). If this function is called, neither 
 # image_to_offset() nor offset_to_target() need to be called individually.
 def get_target_coords(curr_lat, curr_lon, altitude, curr_orientation, target_x, target_y, FOV, resolution_x, resolution_y):
@@ -102,7 +51,7 @@ def get_target_coords(curr_lat, curr_lon, altitude, curr_orientation, target_x, 
 
 # END TARGET COORDINATE CODE
 
-def print_gps(vehicle):
+def target_callback(vehicle):
         # Printing Vehicle's Latitude
     lat = vehicle.location.global_relative_frame.lat
     lon = vehicle.location.global_relative_frame.lon
@@ -120,21 +69,16 @@ def print_gps(vehicle):
     # print("Size of alt = ", sys.getsizeof(vehicle.location.global_relative_frame.alt))
 
 def main():
-    
     tf = TargetFinder(Arducam())
     vehicle = startup()
 
-#    communications = Process(target=parent_proc, args=("192.168.4.3",7777, "192.168.4.10", 7676, function_set))
-#    communications.start()
     #if red square is found: 
     while(tf.check_for_target() == False):
         pass
         #gps_coor = gps.gps_setup()
         #calibrate_coordinates(gps_coor)
         
-    # GPS prints once while loop is broken
-    print_gps(vehicle)
-
+    target_callback(vehicle)
 #    communications.join()
 
 if __name__ == "__main__":

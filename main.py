@@ -3,7 +3,10 @@ import multiprocessing
 from multiprocessing.dummy import Process
 from multiprocessing import Pipe
 from xml.etree.ElementTree import tostring
+from vision.target_finder import TargetFinder
+from vision.camera import Arducam
 import gps_file as gps
+from movement import *
 
 from Communications.communications.parent import parent_proc
 import math
@@ -99,15 +102,38 @@ def get_target_coords(curr_lat, curr_lon, altitude, curr_orientation, target_x, 
 
 # END TARGET COORDINATE CODE
 
+def print_gps(vehicle):
+        # Printing Vehicle's Latitude
+    lat = vehicle.location.global_relative_frame.lat
+    lon = vehicle.location.global_relative_frame.lon
+    alt = vehicle.location.global_relative_frame.alt
+    print("Vehicle's Latitude              =  ", lat)
+    # print("Size of lat = ", sys.getsizeof(vehicle.location.global_relative_frame.lat))
+
+    # Printing Vehicle's Longitude
+    print("Vehicle's Longitude             =  ", lon)
+    # print("Size of lon = ", sys.getsizeof(vehicle.location.global_relative_frame.lon))
+
+
+    # Printing Vehicle's Altitude
+    print("Vehicle's Altitude (in meters)  =  ", alt)
+    # print("Size of alt = ", sys.getsizeof(vehicle.location.global_relative_frame.alt))
+
 def main():
+    
+    tf = TargetFinder(Arducam())
+    vehicle = startup()
 
     communications = Process(target=parent_proc, args=("192.168.4.3",7777, "192.168.4.10", 7676, function_set))
     communications.start()
     #if red square is found: 
+    while(tf.check_for_target() == False):
+        pass
         #gps_coor = gps.gps_setup()
         #calibrate_coordinates(gps_coor)
         
-
+    # GPS prints once while loop is broken
+    print_gps(vehicle)
 
     communications.join()
 

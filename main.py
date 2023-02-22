@@ -5,6 +5,7 @@ from movement import *
 import sys
 from multiprocessing import Process, Pipe
 sys.path.append("../Communications")
+import communications as c
 import math
 
 # This converts relative image positioning into a physical offset (in meters) from the center of the image.
@@ -72,14 +73,21 @@ def main():
     tf = TargetFinder(Arducam())
     vehicle = startup()
 
-    #if red square is found: 
-    while(tf.check_for_target() == False):
-        pass
-        #gps_coor = gps.gps_setup()
-        #calibrate_coordinates(gps_coor)
-        
-    target_callback(vehicle)
-#    communications.join()
+    function_set = {
+        }
+    communications = Process(target=c.parent_proc, args=("192.168.12.103", 7777, "192.168.4.1", 7676, function_set))
+    communications.start()
+
+    while True:
+        #if red square is found: 
+        while(tf.check_for_target() == False):
+            pass
+            #gps_coor = gps.gps_setup()
+            #calibrate_coordinates(gps_coor)
+            
+        target_callback(vehicle)
+
+    communications.join()
 
 if __name__ == "__main__":
     main()

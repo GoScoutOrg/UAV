@@ -31,3 +31,10 @@ Open another terminal and start the sitl
 ``python ~/ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --console``
 
 Lastly just run the script you've been developing to program the autopilot. To connect just make sure you are specifying local host on port 14550
+
+## More things:
+To connect to the drone:
+on Linux run the following:
+  - sudo create_ap --freq-band 2.4 [interface] CLAUSWORKS-PC clausworks
+  - sudo firwall-cmd --zone=nm-shared --add-interface=ap0
+  - sudo arp-scan #To check

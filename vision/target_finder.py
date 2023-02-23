@@ -97,8 +97,8 @@ class TargetFinder():
 
     # This function is essentially a wrapper that calls both image_to_offset() and offset_to_target_coords(). If this function is called, neither 
     # image_to_offset() nor offset_to_target() need to be called individually.
-    def get_target_coords(self, curr_lat, curr_lon, altitude, curr_orientation, target_x, target_y, FOV, resolution_x, resolution_y):
-        transformed_offset = self.image_to_offset(altitude, curr_orientation, target_x, target_y, FOV, resolution_x, resolution_y)
+    def get_target_coords(self, curr_lat, curr_lon, altitude, curr_orientation):
+        transformed_offset = self.image_to_offset(altitude, curr_orientation, self.frame_coord.x, self.frame_coord.y, self.src.fov, self.src.resolution[0], self.src.resolution[1])
         target_coords = self.offset_to_target_coords(transformed_offset[1], transformed_offset[0], curr_lat, curr_lon)
         return target_coords
 
@@ -141,6 +141,7 @@ class TargetFinder():
             if M['m00'] != 0.0:
                 x_M = int(M['m10']/M['m00'])
                 y_M = int(M['m01']/M['m00'])
+                y_M = abs(y_M - 480)
             area = cv2.contourArea(contour)
             # if area is red and quadrilateral
             if(area > 300 and len(approx) >= 3 and len(approx) < 5):

@@ -9,7 +9,7 @@ class Arducam():
         self.cam.configure(self.cam.create_preview_configuration(main={"format": 'RGB888', "size": (640, 480)}))
         self.resolution = (640, 480)
         self.aspect_ratio = 480 / 640
-        self.diagonal_fov = math.atan(self.aspect_ratio) * 2
+        self.fov = math.atan(self.aspect_ratio) * 2
         self.cam.start()
         
     def fetch_frame(self):
@@ -20,6 +20,9 @@ class Arducam():
 class Webcam():
     
     def __init__(self) -> None:
+        self.resolution = (640, 480)
+        self.aspect_ratio = 480 / 640
+        self.fov = math.atan(self.aspect_ratio) * 2
         self.cam = cv2.VideoCapture(0)
         
     def fetch_frame(self):

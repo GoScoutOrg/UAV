@@ -54,8 +54,13 @@ def main():
         
         if send_vel_poll_target(forward_vel, lateral_vel, 5, vehicle, tf) == True:
             # send coordinates to rover here
-            print_gps(vehicle)
-            print(tf.frame_coord)
+            lat = vehicle.location.global_relative_frame.lat
+            lon = vehicle.location.global_relative_frame.lon
+            alt = vehicle.location.global_relative_frame.alt
+            ori = vehicle.heading
+            coords = tf.get_target_coords(lat, lon, alt, ori)
+            print(lat, lon)
+            print(coords)
             return
         vehicle.send_mavlink(msg_blank)
         time.sleep(2) 

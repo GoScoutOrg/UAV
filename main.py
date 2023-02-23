@@ -1,6 +1,7 @@
 from vision.target_finder import TargetFinder
 from vision.camera import Arducam
 from movement import *
+from time import sleep
 
 
 from multiprocessing import Process
@@ -111,13 +112,17 @@ def target_callback(vehicle):
 # END TARGET COORDINATE CODE
 #----------------------------------------------------------------#
 
+search = True
+
+def toggle_search(args):
+    search = not search
 
 def main():
     tf = TargetFinder(Arducam())
     vehicle = startup()
 
     function_set = {
-        "TEST": print("Hello")
+        "ROVER_ACK": toggle_search()
     }
 
     communications = Process(target=c.parent_proc, args=("192.168.4.10",7777, "192.168.4.1", 7676, function_set))
@@ -130,11 +135,8 @@ def main():
             #calibrate_coordinates(gps_coor)
         
         target_callback(vehicle)
-
-        communications.join()
+        sleep(30)
         
-        
-
 
     communications.join()
 

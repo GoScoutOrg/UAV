@@ -153,8 +153,8 @@ class TargetFinder():
                 cv2.putText(imageFrame, "Red Square", (x, y),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.0,
                 (0, 0, 255))
-                cv2.imshow("Multiple Color Detection in Real-TIme", imageFrame)
+                # cv2.imshow("Multiple Color Detection in Real-TIme", imageFrame)
                 cv2.imwrite("test.png", imageFrame)
                 return True
-        cv2.imshow("Multiple Color Detection in Real-TIme", imageFrame)
+        # cv2.imshow("Multiple Color Detection in Real-TIme", imageFrame)
         return False

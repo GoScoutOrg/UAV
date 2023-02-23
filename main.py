@@ -6,24 +6,15 @@ from xml.etree.ElementTree import tostring
 import gps_file as gps
 
 from multiprocessing import Process
-from Communications.main import parent_proc
 
-#from Communications.communications.parent import parent_proc
+import sys
+sys.path.append("../Communications")
+import communications as c
+
 import math
 
 UAV, comms = Pipe()
 
-def wait_for_rover(args):
-    #wait for a recv from the rover suggesting its done
-    UAV.recv()
-
-def send_location(gps_coor):
-    comms.send(gps_coor)
-
-    
-function_set = {
-    "EX_DONE": comms.send("PICKLE")
-}
 
 #----------------------------------------------------------------#
 # START TARGET COORDINATE CODE
@@ -96,18 +87,46 @@ def get_target_coords(curr_lat, curr_lon, altitude, curr_orientation, target_x, 
     target_coords = offset_to_target_coords(transformed_offset[1], transformed_offset[0], curr_lat, curr_lon)
     return target_coords
 
+
+
+def target_callback(vehicle):
+        # Printing Vehicle's Latitude
+    lat = vehicle.location.global_relative_frame.lat
+    lon = vehicle.location.global_relative_frame.lon
+    alt = vehicle.location.global_relative_frame.alt
+    print("Vehicle's Latitude              =  ", lat)
+    # print("Size of lat = ", sys.getsizeof(vehicle.location.global_relative_frame.lat))
+
+    # Printing Vehicle's Longitude
+    print("Vehicle's Longitude             =  ", lon)
+    # print("Size of lon = ", sys.getsizeof(vehicle.location.global_relative_frame.lon))
+
+
+    # Printing Vehicle's Altitude
+    print("Vehicle's Altitude (in meters)  =  ", alt)
+    # print("Size of alt = ", sys.getsizeof(vehicle.location.global_relative_frame.alt))
 #----------------------------------------------------------------#
 # END TARGET COORDINATE CODE
 #----------------------------------------------------------------#
 
 
 def main():
+    tf = TargetFinder(Arducam())
+    vehicle = startup()
 
     communications = Process(target=parent_proc, args=("192.168.4.3",7777, "192.168.4.10", 7676, function_set))
     communications.start()
-    #if red square is found: 
-        #gps_coor = gps.gps_setup()
-        #calibrate_coordinates(gps_coor)
+    while True:
+        #if red square is found: 
+        while(tf.check_for_target() == False):
+            pass
+            #gps_coor = gps.gps_setup()
+            #calibrate_coordinates(gps_coor)
+        c.send_packet(flag = "GPS", args= [gpsinfo])
+        target_callback(vehicle)
+
+        communications.join()
+        
         
 
 

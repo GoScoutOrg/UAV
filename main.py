@@ -1,11 +1,14 @@
 from imaplib import _CommandResults
 import multiprocessing
-from multiprocessing.dummy import Process
+#from multiprocessing.dummy import Process
 from multiprocessing import Pipe
 from xml.etree.ElementTree import tostring
 import gps_file as gps
 
-from Communications.communications.parent import parent_proc
+from multiprocessing import Process
+from Communications.main import parent_proc
+
+#from Communications.communications.parent import parent_proc
 import math
 
 UAV, comms = Pipe()

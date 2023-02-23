@@ -1,9 +1,7 @@
-from imaplib import _CommandResults
-import multiprocessing
-#from multiprocessing.dummy import Process
-from multiprocessing import Pipe
-from xml.etree.ElementTree import tostring
-import gps_file as gps
+from vision.target_finder import TargetFinder
+from vision.camera import Arducam
+from movement import *
+
 
 from multiprocessing import Process
 
@@ -105,6 +103,10 @@ def target_callback(vehicle):
     # Printing Vehicle's Altitude
     print("Vehicle's Altitude (in meters)  =  ", alt)
     # print("Size of alt = ", sys.getsizeof(vehicle.location.global_relative_frame.alt))
+    gpsinfo = str(lat) + ":" + str(lon)
+    c.send_packet(flag = "GPS", args= [gpsinfo]) 
+
+
 #----------------------------------------------------------------#
 # END TARGET COORDINATE CODE
 #----------------------------------------------------------------#
@@ -114,7 +116,11 @@ def main():
     tf = TargetFinder(Arducam())
     vehicle = startup()
 
-    communications = Process(target=parent_proc, args=("192.168.4.3",7777, "192.168.4.10", 7676, function_set))
+    function_set = {
+        "TEST": print("Hello")
+    }
+
+    communications = Process(target=c.parent_proc, args=("192.168.4.10",7777, "192.168.4.1", 7676, function_set))
     communications.start()
     while True:
         #if red square is found: 
@@ -122,7 +128,7 @@ def main():
             pass
             #gps_coor = gps.gps_setup()
             #calibrate_coordinates(gps_coor)
-        c.send_packet(flag = "GPS", args= [gpsinfo])
+        
         target_callback(vehicle)
 
         communications.join()

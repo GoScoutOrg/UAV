@@ -20,19 +20,15 @@ def wait_for_rover(args):
 def send_location(gps_coor):
     comms.send(gps_coor)
 
-def calibrate_coordinates(gps_coor):
-    #do some math!!!
-    latitude = gps_coor[0]
-    longitude = gps_coor[1]
-    gps_string = tostring(latitude) + " " + tostring(longitude)
-    send_location(gps_string)
-    
     
 function_set = {
     "EX_DONE": comms.send("PICKLE")
 }
 
+#----------------------------------------------------------------#
 # START TARGET COORDINATE CODE
+#----------------------------------------------------------------#
+
 
 # Takes in target coordinates given current coordinates and current orientation (compass direction in degrees)
 # Returns the turn angle required in degrees
@@ -100,7 +96,10 @@ def get_target_coords(curr_lat, curr_lon, altitude, curr_orientation, target_x, 
     target_coords = offset_to_target_coords(transformed_offset[1], transformed_offset[0], curr_lat, curr_lon)
     return target_coords
 
+#----------------------------------------------------------------#
 # END TARGET COORDINATE CODE
+#----------------------------------------------------------------#
+
 
 def main():
 

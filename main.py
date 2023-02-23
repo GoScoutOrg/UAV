@@ -122,7 +122,7 @@ def main():
     vehicle = startup()
 
     function_set = {
-        "ROVER_ACK": toggle_search()
+        "ROVER_ACK": toggle_search
     }
 
     communications = Process(target=c.parent_proc, args=("192.168.4.10",7777, "192.168.4.1", 7676, function_set))
